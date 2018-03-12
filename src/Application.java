@@ -28,13 +28,18 @@ import edu.stanford.nlp.ling.CoreAnnotations.*;
 public class Application {
 
     public static void main(String[] arg) {
-        String text = "The first sentence have Mr. Adam. The second sentence.";
-        findPathOfSentences(text);
-        findSentences(text);
-        findPartOfSpeech(text);
-        findName(text);
-
-
+        Scanner in = new Scanner(System.in);
+        System.out.print(">>");
+        String str = in.nextLine();
+        AnalysisQuestion anl_qst = new AnalysisQuestion(str);
+        for (String t :
+                anl_qst.clearQ()) {
+            System.out.println(t);
+        }
+        for (String s :
+                anl_qst.getF()) {
+            System.out.println(s);
+        }
     }
 
     private static void createTreeAndFindMeanSentence(String text) {
