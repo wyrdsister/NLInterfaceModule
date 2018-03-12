@@ -6,6 +6,7 @@ import java.util.HashSet;
     Удаление шумовых слов
 */
 
+//TODO не работает, когда шумые слова повторяются друг за другом
 public class StopWords
 {
     private String[] defaultStopWords = {"i", "a", "about", "an", "are", "as", "at", "be", "by", "com", "for", "from", "in", "is", "it", "of",
@@ -17,6 +18,7 @@ public class StopWords
         stopWords.addAll(Arrays.asList(defaultStopWords));
     }
 
+    //TODO доделать
     public StopWords(String fileName){
 
     }

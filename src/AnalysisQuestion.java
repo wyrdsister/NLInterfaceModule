@@ -51,7 +51,7 @@ public class AnalysisQuestion {
             tokens = tokenizeQ();
             Span[] names = finderME.find(tokens);
             main_focus.add(Arrays.toString(Span.spansToStrings(names, tokens)));
-            //удалить эти имена из списка
+            //TODO удалить эти имена из списка
 
 
         } catch (IOException e) {
@@ -60,12 +60,12 @@ public class AnalysisQuestion {
         return tokens;
     }
 
-    //корень слова
+    //TODO выделение корней из слов
     private void stemQ(){
 
     }
 
-    //базовая форма слова
+    //TODO преобразование слов в базовые слова
     private void lemmQ(){
 
     }
