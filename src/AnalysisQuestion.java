@@ -2,9 +2,13 @@ import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.Span;
+import opennlp.tools.lemmatizer.LemmaSample;
+
+
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -37,7 +41,7 @@ public class AnalysisQuestion {
     }
 
     public String[] clearQ(){
-        StopWords sw = new StopWords();
+        StopWords sw = new StopWords("C:\\Users\\Моя госпожа\\Documents\\GitHub\\NLInterfaceModule\\materials\\stopwords.txt");
         String[] tokens = tokenizeQ();
         findNameQ();
         return sw.removeStopWords(tokens);
@@ -60,13 +64,11 @@ public class AnalysisQuestion {
         return tokens;
     }
 
-    //TODO выделение корней из слов
-    private void stemQ(){
 
-    }
 
-    //TODO преобразование слов в базовые слова
-    private void lemmQ(){
+    //что-то не так с нужным классом
+    // найти другой способ или подумать об необходимости данной затеи
+    private void  lemmatize(String word, String postag) {
 
     }
 
