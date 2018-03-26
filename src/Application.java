@@ -24,7 +24,7 @@ public class Application {
         Scanner in = new Scanner(System.in);
         System.out.print(">>");
         String str = in.nextLine();
-        AnalysisQuestion anl_qst = new AnalysisQuestion(str);
+        /*AnalysisQuestion anl_qst = new AnalysisQuestion(str);
         for (String t :
                 anl_qst.clearQ()) {
             System.out.println(t);
@@ -32,7 +32,9 @@ public class Application {
         for (String s :
                 anl_qst.getF()) {
             System.out.println(s);
-        }
+        }*/
+        AnalysisInputData anl_data = new AnalysisInputData(str);
+        System.out.println(anl_data.processText());
     }
 
     private static void createTreeAndFindMeanSentence(String text) {

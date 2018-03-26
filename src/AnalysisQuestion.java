@@ -64,13 +64,4 @@ public class AnalysisQuestion {
         return tokens;
     }
 
-
-
-    //что-то не так с нужным классом
-    // найти другой способ или подумать об необходимости данной затеи
-    private void  lemmatize(String word, String postag) {
-
-    }
-
-
 }
