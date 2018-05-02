@@ -1,7 +1,7 @@
-import edu.stanford.nlp.ling.HasWord;
-import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.process.DocumentPreprocessor;
+//import edu.stanford.nlp.ling.HasWord;
+//import edu.stanford.nlp.pipeline.Annotation;
+//import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+//import edu.stanford.nlp.process.DocumentPreprocessor;
 
 import opennlp.tools.cmdline.postag.POSModelLoader;
 import opennlp.tools.namefind.NameFinderME;
@@ -24,8 +24,8 @@ public class Application {
         Scanner in = new Scanner(System.in);
         System.out.print(">>");
         String str = in.nextLine();
-        /*AnalysisQuestion anl_qst = new AnalysisQuestion(str);
-        for (String t :
+        AnalysisQuestion anl_qst = new AnalysisQuestion(str);
+        /*for (String t :
                 anl_qst.clearQ()) {
             System.out.println(t);
         }
@@ -33,19 +33,22 @@ public class Application {
                 anl_qst.getF()) {
             System.out.println(s);
         }*/
-        AnalysisInputData anl_data = new AnalysisInputData(str);
-        System.out.println(anl_data.processText());
+//        AnalysisInputData anl_data = new AnalysisInputData(str);
+//        System.out.println(anl_data.processText());
+        anl_qst.createTree();
+
+
     }
 
-    private static void createTreeAndFindMeanSentence(String text) {
+//    private static void createTreeAndFindMeanSentence(String text) {
         //не работает из аннотатора tokenize и др
-        Properties properties = new Properties();
-        properties.setProperty("annotators", "tokenize,ssplit,parse");
-        StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
-        Annotation annotator = new Annotation(text);
-        pipeline.annotate(annotator);
-        pipeline.prettyPrint(annotator, System.out);
-    }
+//        Properties properties = new Properties();
+//        properties.setProperty("annotators", "tokenize,ssplit,parse");
+//        StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
+//        Annotation annotator = new Annotation(text);
+//        pipeline.annotate(annotator);
+//        pipeline.prettyPrint(annotator, System.out);
+//    }
 
     private static void findPartOfSpeech(String text) {
         // разбиение на части речи
@@ -82,24 +85,24 @@ public class Application {
         }
     }
 
-    private static void findSentences(String text) {
-        // поиск предложений
-        StringReader reader = new StringReader(text);
-        DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-        List<String> sentences = new LinkedList<String>();
-        for (List<HasWord> element :
-                dp) {
-            StringBuilder sentence = new StringBuilder();
-            List<HasWord> hasWordList = element;
-            for (HasWord token :
-                    hasWordList) {
-                sentence.append(token).append(" ");
-            }
-            sentences.add(sentence.toString());
-        }
-        for (String sent :
-                sentences) {
-            System.out.println(sent);
-        }
-    }
+//    private static void findSentences(String text) {
+//         поиск предложений
+//        StringReader reader = new StringReader(text);
+//        DocumentPreprocessor dp = new DocumentPreprocessor(reader);
+//        List<String> sentences = new LinkedList<String>();
+//        for (List<HasWord> element :
+//                dp) {
+//            StringBuilder sentence = new StringBuilder();
+//            List<HasWord> hasWordList = element;
+//            for (HasWord token :
+//                    hasWordList) {
+//                sentence.append(token).append(" ");
+//            }
+//            sentences.add(sentence.toString());
+//        }
+//        for (String sent :
+//                sentences) {
+//            System.out.println(sent);
+//        }
+//    }
 }
