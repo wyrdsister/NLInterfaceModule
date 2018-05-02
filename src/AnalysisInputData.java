@@ -1,41 +1,57 @@
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Locale;
+
 
 public class AnalysisInputData {
 
-    String[] questionWords = {"who", "when", "what", "why", "which", "where", "how"};
-    String[] simpleQuestionWords = {"did", "do", "does", "is", "am", "are", "have", "has", "will"};
-    String text;
-    enum type {type1, type2, type3};
+    private String[] questionWords = {"who", "when", "what", "why", "which", "where", "how"};
+    private String[] simpleQuestionWords = {"did", "do", "does", "is", "am", "are", "have", "has", "will"};
+    private String type;
+    private String text;
+
 
     AnalysisInputData(String text) {
         this.text = text;
+        processText();
     }
 
-    public String processText() {
+    private void processText() {
         ArrayList<String> _text = splitText();
         if (_text.size() == 1) {
-            type _t = defineType(_text.get(0));
-            return _text.get(0);
+            type = defineType(_text.get(0));
+            text =  _text.get(0);
         }
         if (_text.size() > 1) {
 
         } else {
 
         }
-        return null;
+
     }
 
-    private type defineType(String question){
-        if(question.equals(questionWords)){
-            return type.type1;
-        }if(question.equals(simpleQuestionWords)){
-            return type.type2;
-        }else {
-            return type.type3;
+    private String defineType(String first) {
+        if (first.equalsIgnoreCase(Arrays.toString(questionWords)))
+            return defineTypeQuestionWord(first);
+        if (first.equalsIgnoreCase(Arrays.toString(simpleQuestionWords)))
+            return defineTypeSimpleQuestion(first);
+        return "";
+    }
+
+    private String defineTypeSimpleQuestion(String first) {
+        return "";
+    }
+
+    private String defineTypeQuestionWord(String first) {
+        if (first.equalsIgnoreCase(("Who"))) {
+            return "who";
         }
+        if (first.equalsIgnoreCase(("What"))) {
+            return "what";
+        }
+        return "";
+
     }
 
 
@@ -58,4 +74,11 @@ public class AnalysisInputData {
         return newText;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public String getText() {
+        return text;
+    }
 }
