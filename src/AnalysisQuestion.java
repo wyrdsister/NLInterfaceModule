@@ -12,6 +12,7 @@ import opennlp.tools.util.Span;
 
 
 import java.io.*;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -23,13 +24,16 @@ import java.util.Map;
 public class AnalysisQuestion {
 
     private String question;
-    private ArrayList<String> main_focus;
-    private String[][] elementTree;
+    private ArrayList<String> focusWords;
+    private String TagQuestion;
+    private ArrayList<String> supportWords;
 
 
     AnalysisQuestion(String _question) {
         question = _question;
-        main_focus = new ArrayList<>();
+        focusWords = new ArrayList<>();
+        TagQuestion = null;
+        supportWords = new ArrayList<>();
     }
 
     public String getQ() {
@@ -37,7 +41,7 @@ public class AnalysisQuestion {
     }
 
     public String[] getF() {
-        return main_focus.toArray(new String[0]);
+        return focusWords.toArray(new String[0]);
     }
 
     private String[] tokenizeQ() {
@@ -51,15 +55,15 @@ public class AnalysisQuestion {
         return sw.removeStopWords(tokens);
     }
 
-    private void findNameQ() {
+    public void findNameQ() {
         String[] tokens = null;
         try {
-            TokenNameFinderModel model = new TokenNameFinderModel(new File("C:\\OpenNLP Models", "en-ner-person.bin"));
+            TokenNameFinderModel model = new TokenNameFinderModel(new File("C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials", "en-ner-person.bin"));
             NameFinderME finderME = new NameFinderME(model);
             tokens = tokenizeQ();
             Span[] names = finderME.find(tokens);
-            main_focus.add(Arrays.toString(Span.spansToStrings(names, tokens)));
-            //TODO удалить эти имена из списка
+            supportWords.add(question.substring(question.indexOf("'"), question.lastIndexOf("'")+1));
+            System.out.println(supportWords);
 
 
         } catch (IOException e) {
@@ -84,24 +88,67 @@ public class AnalysisQuestion {
         if (parser != null) {
             Parse sent[] = ParserTool.parseLine(question, parser, 1);
             for(Parse p : sent){
-                p.showCodeTree();
+                p.show();
             }
         }
     }
 
-    private void getElementTree(){
+    public void getElementTree(){
         Parser parser = createParserModel();
         Parse tree[] = ParserTool.parseLine(question, parser, 1);
         for(Parse parse : tree){
             Parse element[] = parse.getChildren();
-            elementTree = new String[element.length][element.length];
             for (Parse e : element){
                 Parse tags[] = e.getTagNodes();
                 for(Parse tag : tags){
-                    elementTree[1][1] = Arrays.toString(new Parse[]{tag, Parse.parseParse(tag.getType())});
+                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
+                    RulesForFocus(tag.toString(), tag.getType());
                 }
             }
         }
     }
+
+
+    public void setTagQuestion(){
+        for(String element : focusWords){
+            //TODO реагирует на регистр
+            if(element.contains("When"))
+                TagQuestion = "birthYear";
+        }
+    }
+
+    private void RulesForFocus(String tag, String type){
+        if(type.equals("WDT"))
+            focusWords.add(tag);
+        if(type.equals("WRB"))
+            focusWords.add(tag);
+        if(type.equals("NN"))
+            focusWords.add(tag);
+    }
+
+    public void formatAnswer(){
+        for (String element : focusWords){
+            if(TagQuestion.equalsIgnoreCase("birthYear")){
+                try {
+                    AccessDB query = new AccessDB();
+                    GeneratorQuery g = new GeneratorQuery();
+                    String q = g.generateQueryBirthYear(supportWords.get(0));
+                    System.out.println(q);
+                    String answer = query.startQuery(q);
+                    if(answer != null){
+                        System.out.println(answer);
+                    }
+
+                    break;
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+
+
 
 }

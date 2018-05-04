@@ -35,9 +35,10 @@ public class Application {
         }*/
 //        AnalysisInputData anl_data = new AnalysisInputData(str);
 //        System.out.println(anl_data.processText());
-        anl_qst.createTree();
-
-
+        anl_qst.findNameQ();
+        anl_qst.getElementTree();
+        anl_qst.setTagQuestion();
+        anl_qst.formatAnswer();
     }
 
 //    private static void createTreeAndFindMeanSentence(String text) {

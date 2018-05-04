@@ -3,15 +3,21 @@ import java.sql.*;
 
 public class AccessDB {
 
-    private final String url = "jdbc:mysql://localhost:3306/db_name";
-    private final String user = "user";
-    private final String password = "password";
+    private final String url = "jdbc:postgresql://localhost:5432/postgres";
+    private final String user = "postgres";
+    private final String password = "postgres";
     private Connection conn = null;
 
     AccessDB() throws SQLException {
 
         try {
-            conn = DriverManager.getConnection( url, user, password);
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        try {
+
+            conn = DriverManager.getConnection(url, user, password);
 
             if (conn == null) {
                 System.out.println("Нет соединения с БД!");
@@ -24,7 +30,7 @@ public class AccessDB {
         }
     }
 
-    private String startQuery(String query){
+    public String startQuery(String query){
 
         try {
             Statement stmt = conn.createStatement();
@@ -32,9 +38,7 @@ public class AccessDB {
             rs = stmt.executeQuery(query);
 
             while (rs.next()) {
-                return rs.getString("answer");
-//                System.out.println(rs.getRow() + ". " + rs.getString("firstname")
-//                        + "\t" + rs.getString("lastname"));
+                return rs.getString("birthyear");
             }
             stmt.close();
 
