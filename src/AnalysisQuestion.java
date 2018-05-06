@@ -65,7 +65,7 @@ public class AnalysisQuestion {
         String namePerson = (question.substring(question.indexOf("'"), question.lastIndexOf("'") + 1));
         namePerson = namePerson.replaceAll("'", "");
         supportWords.add(namePerson);
-        System.out.println(supportWords);
+//        System.out.println(supportWords);
 
 
 //        } catch (IOException e) {
@@ -103,51 +103,62 @@ public class AnalysisQuestion {
             for (Parse e : element) {
                 Parse tags[] = e.getTagNodes();
                 for (Parse tag : tags) {
-                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
+//                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
                     RulesForFocus(tag.toString(), tag.getType());
+                    RulesForSupport(tag.toString(), tag.getType());
                 }
             }
         }
+    }
+
+    private void RulesForSupport(String tag, String type) {
+        if (type.equals("VBN") || type.equals("JJ"))
+            supportWords.add(tag);
     }
 
 
     public void setTagQuestion() {
         for (String element : focusWords) {
             //TODO реагирует на регистр
-            if (element.contains("When")) {
+            if (element.equalsIgnoreCase("when")) {
                 for (String word : supportWords) {
                     if (word.equalsIgnoreCase("born"))
                         TagQuestion = "birthyear";
                     if (word.equalsIgnoreCase("dead"))
                         TagQuestion = "deathyear";
                 }
-
+            }
+            if (element.equalsIgnoreCase("how")) {
+                for (String word : supportWords) {
+                    if (word.equalsIgnoreCase("old"))
+                        TagQuestion = "age";
+                }
             }
         }
     }
 
-    private void RulesForFocus(String tag, String type) {
-        if (type.equals("WDT"))
-            focusWords.add(tag);
-        if (type.equals("WRB"))
-            focusWords.add(tag);
-        if (type.equals("NN"))
-            focusWords.add(tag);
-        if (type.equals("VBN") || type.equals("JJ"))
-            supportWords.add(tag);
+
+        private void RulesForFocus (String tag, String type){
+            if (type.equals("WDT"))
+                focusWords.add(tag);
+            if (type.equals("WRB"))
+                focusWords.add(tag);
+            if (type.equals("NN"))
+                focusWords.add(tag);
+
+        }
+
+        public String getTagQuestion () {
+            return TagQuestion;
+        }
+
+        public ArrayList<String> getFocusWords () {
+            return focusWords;
+        }
+
+        public ArrayList<String> getSupportWords () {
+            return supportWords;
+        }
+
+
     }
-
-    public String getTagQuestion() {
-        return TagQuestion;
-    }
-
-    public ArrayList<String> getFocusWords() {
-        return focusWords;
-    }
-
-    public ArrayList<String> getSupportWords() {
-        return supportWords;
-    }
-
-
-}

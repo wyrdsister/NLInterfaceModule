@@ -23,16 +23,16 @@ public class Application {
 
     public static void main(String[] arg) {
         Scanner in = new Scanner(System.in);
-        while(!in.nextLine().contains("exit")) {
-            System.out.print(">>");
-            String str = in.nextLine();
-            LogicApplication l = new LogicApplication();
+        LogicApplication l = new LogicApplication();
+        do {
             try {
+                System.out.print(">>");
+                String str = in.nextLine();
                 l.start(str);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        }
+        } while (!in.nextLine().contains("exit"));
         /*for (String t :
                 anl_qst.clearQ()) {
             System.out.println(t);
@@ -47,7 +47,7 @@ public class Application {
     }
 
 //    private static void createTreeAndFindMeanSentence(String text) {
-        //не работает из аннотатора tokenize и др
+    //не работает из аннотатора tokenize и др
 //        Properties properties = new Properties();
 //        properties.setProperty("annotators", "tokenize,ssplit,parse");
 //        StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);

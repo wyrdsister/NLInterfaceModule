@@ -8,7 +8,7 @@ public class Names {
         Query query = new Query();
         query.columnByName("birthyear");
         query.tableByName("names_basics");
-        query.paramByName("primaryname", "'" + namePerson + "'");
+        query.paramByName("primaryname", "'" + namePerson + "'", true);
         return query.toString();
     }
 
@@ -16,16 +16,16 @@ public class Names {
         Query query = new Query();
         query.columnByName("deathyear");
         query.tableByName("names_basics");
-        query.paramByName("primaryname", "'" + namePerson + "'");
+        query.paramByName("primaryname", "'" + namePerson + "'", true);
         return query.toString();
     }
 
     public String generateAge(String namePerson) {
         Query query = new Query();
         query.columnByName("deathyear" +
-                ", " + Year.now() + "-birthyear as Age");
+                ", " + Year.now() + "-birthyear as age");
         query.tableByName("names_basics");
-        query.paramByName("primaryname", "'" + namePerson + "'");
+        query.paramByName("primaryname", "'" + namePerson + "'", true);
         return query.toString();
     }
 
@@ -33,7 +33,7 @@ public class Names {
         Query query = new Query();
         query.columnByName("knownfortitles");
         query.tableByName("names_basics");
-        query.paramByName("primaryname", "'" + namePerson + "'");
+        query.paramByName("primaryname", "'" + namePerson + "'", true);
         return query.toString();
     }
 

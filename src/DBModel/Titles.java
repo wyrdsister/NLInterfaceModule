@@ -6,8 +6,8 @@ public class Titles {
         Query query = new Query();
         query.columnByName("title");
         query.tableByName("title_akas");
-        query.paramByName("titleid", "'" + titleId + "'");
-        query.paramByName("isoriginaltitle", "1");
+        query.paramByName("titleid", "'" + titleId + "'", true);
+        query.paramByName("isoriginaltitle", "1", false);
         return query.toString();
     }
 }

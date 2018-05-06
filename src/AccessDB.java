@@ -30,7 +30,7 @@ public class AccessDB {
         }
     }
 
-    public ArrayList<String> startQuery(String query, String[] colums) {
+    public ArrayList<String> startQuery(String query, String colums) {
         ArrayList<String> answer = new ArrayList<String>();
         try {
             Statement stmt = conn.createStatement();
@@ -39,8 +39,8 @@ public class AccessDB {
 
 
             while (rs.next()) {
-                for (int i = 0; i < colums.length; i++)
-                    answer.add(rs.getString(colums[i]));
+//                for (int i = 0; i < colums.length; i++)
+                    answer.add(rs.getString(colums));
             }
             stmt.close();
 
