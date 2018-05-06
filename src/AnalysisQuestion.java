@@ -56,19 +56,21 @@ public class AnalysisQuestion {
     }
 
     public void findNameQ() {
-        String[] tokens = null;
-        try {
-            TokenNameFinderModel model = new TokenNameFinderModel(new File("C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials", "en-ner-person.bin"));
-            NameFinderME finderME = new NameFinderME(model);
-            tokens = tokenizeQ();
-            Span[] names = finderME.find(tokens);
-            supportWords.add(question.substring(question.indexOf("'"), question.lastIndexOf("'")+1));
-            System.out.println(supportWords);
+//        String[] tokens = null;
+//        try {
+//            TokenNameFinderModel model = new TokenNameFinderModel(new File("C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials", "en-ner-person.bin"));
+//            NameFinderME finderME = new NameFinderME(model);
+//            tokens = tokenizeQ();
+//            Span[] names = finderME.find(tokens);
+        String namePerson = (question.substring(question.indexOf("'"), question.lastIndexOf("'") + 1));
+        namePerson = namePerson.replaceAll("'", "");
+        supportWords.add(namePerson);
+        System.out.println(supportWords);
 
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private Parser createParserModel() {
@@ -83,24 +85,24 @@ public class AnalysisQuestion {
         return null;
     }
 
-    public void createTree(){
+    public void createTree() {
         Parser parser = createParserModel();
         if (parser != null) {
             Parse sent[] = ParserTool.parseLine(question, parser, 1);
-            for(Parse p : sent){
+            for (Parse p : sent) {
                 p.show();
             }
         }
     }
 
-    public void getElementTree(){
+    public void getElementTree() {
         Parser parser = createParserModel();
         Parse tree[] = ParserTool.parseLine(question, parser, 1);
-        for(Parse parse : tree){
+        for (Parse parse : tree) {
             Parse element[] = parse.getChildren();
-            for (Parse e : element){
+            for (Parse e : element) {
                 Parse tags[] = e.getTagNodes();
-                for(Parse tag : tags){
+                for (Parse tag : tags) {
                     System.out.println(tag + " " + tag.getType() + " " + tag.getText());
                     RulesForFocus(tag.toString(), tag.getType());
                 }
@@ -109,46 +111,43 @@ public class AnalysisQuestion {
     }
 
 
-    public void setTagQuestion(){
-        for(String element : focusWords){
+    public void setTagQuestion() {
+        for (String element : focusWords) {
             //TODO реагирует на регистр
-            if(element.contains("When"))
-                TagQuestion = "birthYear";
-        }
-    }
-
-    private void RulesForFocus(String tag, String type){
-        if(type.equals("WDT"))
-            focusWords.add(tag);
-        if(type.equals("WRB"))
-            focusWords.add(tag);
-        if(type.equals("NN"))
-            focusWords.add(tag);
-    }
-
-    public void formatAnswer(){
-        for (String element : focusWords){
-            if(TagQuestion.equalsIgnoreCase("birthYear")){
-                try {
-                    AccessDB query = new AccessDB();
-                    GeneratorQuery g = new GeneratorQuery();
-                    String q = g.generateQueryBirthYear(supportWords.get(0));
-                    System.out.println(q);
-                    String answer = query.startQuery(q);
-                    if(answer != null){
-                        System.out.println(answer);
-                    }
-
-                    break;
-                } catch (SQLException e) {
-                    e.printStackTrace();
+            if (element.contains("When")) {
+                for (String word : supportWords) {
+                    if (word.equalsIgnoreCase("born"))
+                        TagQuestion = "birthyear";
+                    if (word.equalsIgnoreCase("dead"))
+                        TagQuestion = "deathyear";
                 }
 
             }
         }
     }
 
+    private void RulesForFocus(String tag, String type) {
+        if (type.equals("WDT"))
+            focusWords.add(tag);
+        if (type.equals("WRB"))
+            focusWords.add(tag);
+        if (type.equals("NN"))
+            focusWords.add(tag);
+        if (type.equals("VBN") || type.equals("JJ"))
+            supportWords.add(tag);
+    }
 
+    public String getTagQuestion() {
+        return TagQuestion;
+    }
+
+    public ArrayList<String> getFocusWords() {
+        return focusWords;
+    }
+
+    public ArrayList<String> getSupportWords() {
+        return supportWords;
+    }
 
 
 }

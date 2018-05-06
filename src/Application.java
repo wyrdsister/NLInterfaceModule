@@ -16,15 +16,23 @@ import opennlp.tools.util.Span;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.sql.SQLException;
 import java.util.*;
 
 public class Application {
 
     public static void main(String[] arg) {
         Scanner in = new Scanner(System.in);
-        System.out.print(">>");
-        String str = in.nextLine();
-        AnalysisQuestion anl_qst = new AnalysisQuestion(str);
+        while(!in.nextLine().contains("exit")) {
+            System.out.print(">>");
+            String str = in.nextLine();
+            LogicApplication l = new LogicApplication();
+            try {
+                l.start(str);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         /*for (String t :
                 anl_qst.clearQ()) {
             System.out.println(t);
@@ -35,10 +43,7 @@ public class Application {
         }*/
 //        AnalysisInputData anl_data = new AnalysisInputData(str);
 //        System.out.println(anl_data.processText());
-        anl_qst.findNameQ();
-        anl_qst.getElementTree();
-        anl_qst.setTagQuestion();
-        anl_qst.formatAnswer();
+
     }
 
 //    private static void createTreeAndFindMeanSentence(String text) {

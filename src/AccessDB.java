@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 
 
 public class AccessDB {
@@ -24,33 +25,30 @@ public class AccessDB {
                 System.exit(0);
             }
 
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public String startQuery(String query){
-
+    public ArrayList<String> startQuery(String query, String[] colums) {
+        ArrayList<String> answer = new ArrayList<String>();
         try {
             Statement stmt = conn.createStatement();
             ResultSet rs = null;
             rs = stmt.executeQuery(query);
 
+
             while (rs.next()) {
-                return rs.getString("birthyear");
+                for (int i = 0; i < colums.length; i++)
+                    answer.add(rs.getString(colums[i]));
             }
             stmt.close();
-
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return answer;
     }
 
-    public String getAnswer(String query){
-        return startQuery(query);
-    }
 
 }
