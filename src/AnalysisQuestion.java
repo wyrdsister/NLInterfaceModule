@@ -1,5 +1,3 @@
-import javafx.beans.binding.MapBinding;
-import javafx.collections.ObservableMap;
 import opennlp.tools.cmdline.parser.ParserTool;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -12,9 +10,8 @@ import opennlp.tools.util.Span;
 
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 /*
@@ -26,14 +23,19 @@ public class AnalysisQuestion {
     private String question;
     private ArrayList<String> focusWords;
     private String TagQuestion;
-    private ArrayList<String> supportWords;
+    private Map<String, String> supportWords;
+
+    String pathDirectory = "C:\\Users\\Karpova\\Documents\\GitHub\\NLInterfaceModule\\materials";
+
+    private Map<String, String> elementsOfTree;
 
 
     AnalysisQuestion(String _question) {
         question = _question;
         focusWords = new ArrayList<>();
         TagQuestion = null;
-        supportWords = new ArrayList<>();
+        supportWords = new HashMap<>();
+        elementsOfTree = new HashMap<>();
     }
 
     public String getQ() {
@@ -48,35 +50,45 @@ public class AnalysisQuestion {
         return WhitespaceTokenizer.INSTANCE.tokenize(question);
     }
 
-    public String[] clearQ() {
-        StopWords sw = new StopWords("C:\\Users\\Моя госпожа\\Documents\\GitHub\\NLInterfaceModule\\materials\\stopwords.txt");
+    public String[] clearStopWordsQ() {
+        File StopWords = new File(pathDirectory, "stopwords.txt");
+        StopWords sw = new StopWords(StopWords.getAbsolutePath());
         String[] tokens = tokenizeQ();
-        findNameQ();
-        return sw.removeStopWords(tokens);
+        //return sw.clear(tokens);
+        return tokens;
     }
 
     public void findNameQ() {
-//        String[] tokens = null;
-//        try {
-//            TokenNameFinderModel model = new TokenNameFinderModel(new File("C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials", "en-ner-person.bin"));
-//            NameFinderME finderME = new NameFinderME(model);
-//            tokens = tokenizeQ();
-//            Span[] names = finderME.find(tokens);
-        String namePerson = (question.substring(question.indexOf("'"), question.lastIndexOf("'") + 1));
-        namePerson = namePerson.replaceAll("'", "");
-        supportWords.add(namePerson);
-//        System.out.println(supportWords);
+        /*разбиваем вопрос на токены и очищаем от "шумных слов"*/
+        String[] tokens = clearStopWordsQ();
+        /*создаем модель для поиска имен*/
+        try {
+            File modelName = new File(pathDirectory, "en-ner-person.bin");
+            TokenNameFinderModel model = new TokenNameFinderModel(modelName);
+            NameFinderME nameFinder = new NameFinderME(model);
+            /*проводим сам поиск*/
+            Span[] names = nameFinder.find(tokens);
+            /*записываем имя в supportWords*/
+            for (Span name : names) {
+                supportWords.put("name", tokens[name.getStart()] + " " + tokens[name.getStart() + 1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
     }
 
+    public void findFilmQ() {
+
+
+    }
+
+    /*
+    * создание модели для построения синтаксического дерева
+    * */
     private Parser createParserModel() {
-        String fileLocation = "C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials\\en-parser-chunking.bin";
         try {
-            InputStream modelInputStream = new FileInputStream(fileLocation);
+            InputStream modelInputStream = new FileInputStream(new File(pathDirectory, "en-parser-chunking.bin"));
             ParserModel model = new ParserModel(modelInputStream);
             return ParserFactory.create(model);
         } catch (IOException e) {
@@ -85,6 +97,9 @@ public class AnalysisQuestion {
         return null;
     }
 
+    /*
+    * отображение дерева
+    * */
     public void createTree() {
         Parser parser = createParserModel();
         if (parser != null) {
@@ -97,23 +112,27 @@ public class AnalysisQuestion {
 
     public void getElementTree() {
         Parser parser = createParserModel();
-        Parse tree[] = ParserTool.parseLine(question, parser, 1);
-        for (Parse parse : tree) {
-            Parse element[] = parse.getChildren();
-            for (Parse e : element) {
-                Parse tags[] = e.getTagNodes();
-                for (Parse tag : tags) {
+        if (parser != null) {
+            Parse tree[] = ParserTool.parseLine(question, parser, 1);
+            for (Parse parse : tree) {
+                Parse element[] = parse.getChildren();
+                for (Parse e : element) {
+                    Parse tags[] = e.getTagNodes();
+                    for (Parse tag : tags) {
 //                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
-                    RulesForFocus(tag.toString(), tag.getType());
-                    RulesForSupport(tag.toString(), tag.getType());
+                        elementsOfTree.put(tag.getType(), tag.toString());
+
+                    }
                 }
             }
         }
+        System.out.print(elementsOfTree);
     }
 
     private void RulesForSupport(String tag, String type) {
-        if (type.equals("VBN") || type.equals("JJ"))
-            supportWords.add(tag);
+        if (type.equals("VR"))
+            supportWords.put("condition-" + supportWords.size() + 1, tag);
+
     }
 
 
@@ -121,44 +140,44 @@ public class AnalysisQuestion {
         for (String element : focusWords) {
             //TODO реагирует на регистр
             if (element.equalsIgnoreCase("when")) {
-                for (String word : supportWords) {
-                    if (word.equalsIgnoreCase("born"))
-                        TagQuestion = "birthyear";
-                    if (word.equalsIgnoreCase("dead"))
-                        TagQuestion = "deathyear";
-                }
-            }
-            if (element.equalsIgnoreCase("how")) {
-                for (String word : supportWords) {
-                    if (word.equalsIgnoreCase("old"))
-                        TagQuestion = "age";
-                }
+//                for (String word : supportWords) {
+//                    if (word.equalsIgnoreCase("born"))
+//                        TagQuestion = "birthyear";
+//                    if (word.equalsIgnoreCase("dead"))
+//                        TagQuestion = "deathyear";
             }
         }
+//            if (element.equalsIgnoreCase("how")) {
+//                for (String word : supportWords) {
+//                    if (word.equalsIgnoreCase("old"))
+//                        TagQuestion = "age";
+//                }
+//            }
+//        }
     }
 
 
-        private void RulesForFocus (String tag, String type){
-            if (type.equals("WDT"))
-                focusWords.add(tag);
-            if (type.equals("WRB"))
-                focusWords.add(tag);
-            if (type.equals("NN"))
-                focusWords.add(tag);
-
-        }
-
-        public String getTagQuestion () {
-            return TagQuestion;
-        }
-
-        public ArrayList<String> getFocusWords () {
-            return focusWords;
-        }
-
-        public ArrayList<String> getSupportWords () {
-            return supportWords;
-        }
-
+    private void RulesForFocus(String tag, String type) {
+        if (type.equals("WDT"))
+            focusWords.add(tag);
+        if (type.equals("WRB"))
+            focusWords.add(tag);
+        if (type.equals("NN"))
+            focusWords.add(tag);
 
     }
+
+    public String getTagQuestion() {
+        return TagQuestion;
+    }
+
+    public ArrayList<String> getFocusWords() {
+        return focusWords;
+    }
+
+    public Map<String, String> getSupportWords() {
+        return supportWords;
+    }
+
+
+}

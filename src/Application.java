@@ -3,6 +3,7 @@
 //import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 //import edu.stanford.nlp.process.DocumentPreprocessor;
 
+
 import opennlp.tools.cmdline.postag.POSModelLoader;
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
@@ -13,37 +14,37 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.WhitespaceTokenizer;
 import opennlp.tools.util.Span;
 
+
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
+
 import java.sql.SQLException;
 import java.util.*;
 
+
+/*ПРИМЕРЫ
+*    When was born 'Fred Astaire'?
+*    How old are 'Fred Astaire'?
+*
+* */
 public class Application {
 
     public static void main(String[] arg) {
         Scanner in = new Scanner(System.in);
         LogicApplication l = new LogicApplication();
-        do {
+        while(true) {
             try {
                 System.out.print(">>");
-                String str = in.nextLine();
-                l.start(str);
+                String str = in.nextLine().trim();
+
+                if(str.equalsIgnoreCase("exit"))
+                    return;
+                else
+                    l.start(str);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-        } while (!in.nextLine().contains("exit"));
-        /*for (String t :
-                anl_qst.clearQ()) {
-            System.out.println(t);
         }
-        for (String s :
-                anl_qst.getF()) {
-            System.out.println(s);
-        }*/
-//        AnalysisInputData anl_data = new AnalysisInputData(str);
-//        System.out.println(anl_data.processText());
-
     }
 
 //    private static void createTreeAndFindMeanSentence(String text) {

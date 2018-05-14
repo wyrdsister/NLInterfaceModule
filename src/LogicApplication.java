@@ -10,24 +10,34 @@ public class LogicApplication {
     AnalysisAnswer anl_a;
     AccessDB accessDB;
 
+    /*Типы ответов
+    * LIST_PERSONS - список чего-либо
+    * DATE         - год или дата
+    * NAME         - название
+    * COUNT        - количество чего-либо*/
+    enum AnswerType {LIST, DATE, NAME, COUNT};
+
+    /*Типы вопросов
+    * */
+
+
     LogicApplication() {
 
 
     }
-//    When was born 'Fred Astaire'?
-//    How old are 'Fred Astaire'?
+
     public void start(String questrion) throws SQLException {
         anl_q = new AnalysisQuestion(questrion);
         anl_q.findNameQ();
         anl_q.getElementTree();
         anl_q.setTagQuestion();
-        ArrayList<String> res = getAnswerFromDB(getQuery(), anl_q.getTagQuestion());
-        anl_a = new AnalysisAnswer(anl_q.getTagQuestion());
-        anl_a.formatAnswer();
-        Map<String, String> result = new HashMap<>();
-        result.put("NAME", anl_q.getSupportWords().get(0));
-        result.put("ANSWER", res.get(0));
-        System.out.println(anl_a.getAnswer(result));
+//        ArrayList<String> res = getAnswerFromDB(getQuery(), anl_q.getTagQuestion());
+//        anl_a = new AnalysisAnswer(anl_q.getTagQuestion());
+//        anl_a.formatAnswer();
+//        Map<String, String> result = new HashMap<>();
+//        result.put("NAME", anl_q.getSupportWords().get(0));
+//        result.put("ANSWER", res.get(0));
+//        System.out.println(anl_a.getAnswer(result));
     }
 
     private ArrayList<String> getAnswerFromDB(String query, String column) throws SQLException {
