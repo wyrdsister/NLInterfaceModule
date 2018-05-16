@@ -2,8 +2,6 @@ import DBModel.Names;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class LogicApplication {
     AnalysisQuestion anl_q;
@@ -29,7 +27,7 @@ public class LogicApplication {
     public void start(String questrion) throws SQLException {
         anl_q = new AnalysisQuestion(questrion);
         anl_q.findNameQ();
-        anl_q.getElementTree();
+        anl_q.getElementsTree();
         anl_q.setTagQuestion();
 //        ArrayList<String> res = getAnswerFromDB(getQuery(), anl_q.getTagQuestion());
 //        anl_a = new AnalysisAnswer(anl_q.getTagQuestion());

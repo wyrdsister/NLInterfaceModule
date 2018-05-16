@@ -25,7 +25,7 @@ public class AnalysisQuestion {
     private String TagQuestion;
     private Map<String, String> supportWords;
 
-    String pathDirectory = "C:\\Users\\Karpova\\Documents\\GitHub\\NLInterfaceModule\\materials";
+    String pathDirectory = "C:\\Users\\Моя госпожа\\Documents\\GitHub\\NLInterfaceModule\\materials";
 
     private Map<String, String> elementsOfTree;
 
@@ -54,8 +54,8 @@ public class AnalysisQuestion {
         File StopWords = new File(pathDirectory, "stopwords.txt");
         StopWords sw = new StopWords(StopWords.getAbsolutePath());
         String[] tokens = tokenizeQ();
-        //return sw.clear(tokens);
-        return tokens;
+        return sw.clear(tokens);
+
     }
 
     public void findNameQ() {
@@ -78,14 +78,9 @@ public class AnalysisQuestion {
 
     }
 
-    public void findFilmQ() {
-
-
-    }
-
     /*
-    * создание модели для построения синтаксического дерева
-    * */
+     * создание модели для построения синтаксического дерева
+     * */
     private Parser createParserModel() {
         try {
             InputStream modelInputStream = new FileInputStream(new File(pathDirectory, "en-parser-chunking.bin"));
@@ -98,8 +93,8 @@ public class AnalysisQuestion {
     }
 
     /*
-    * отображение дерева
-    * */
+     * отображение дерева
+     * */
     public void createTree() {
         Parser parser = createParserModel();
         if (parser != null) {
@@ -110,7 +105,10 @@ public class AnalysisQuestion {
         }
     }
 
-    public void getElementTree() {
+    /*
+     * запись элементов дерева с тэгом и значением в Map-у
+     * */
+    public void getElementsTree() {
         Parser parser = createParserModel();
         if (parser != null) {
             Parse tree[] = ParserTool.parseLine(question, parser, 1);
@@ -121,12 +119,22 @@ public class AnalysisQuestion {
                     for (Parse tag : tags) {
 //                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
                         elementsOfTree.put(tag.getType(), tag.toString());
-
                     }
                 }
             }
         }
-        System.out.print(elementsOfTree);
+//        System.out.print(elementsOfTree);
+    }
+
+    /*
+     * применение правил для элементов дерева
+     * */
+    private void applyRulesForTreeElement() {
+        getElementsTree();
+        for (Map.Entry<String, String> e : elementsOfTree.entrySet()) {
+            RulesForFocus(e.getValue(), e.getKey());
+            RulesForSupport(e.getValue(), e.getKey());
+        }
     }
 
     private void RulesForSupport(String tag, String type) {
@@ -139,7 +147,7 @@ public class AnalysisQuestion {
     public void setTagQuestion() {
         for (String element : focusWords) {
             //TODO реагирует на регистр
-            if (element.equalsIgnoreCase("when")) {
+            if (element.toLowerCase().equalsIgnoreCase("when")) {
 //                for (String word : supportWords) {
 //                    if (word.equalsIgnoreCase("born"))
 //                        TagQuestion = "birthyear";
