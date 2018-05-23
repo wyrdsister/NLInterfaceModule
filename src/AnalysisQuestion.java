@@ -193,6 +193,69 @@ why's
             focusWords.add("person");
             processWhoQuestion();
         }
+        if (tag.equalsIgnoreCase("how")) {
+            processHowQuestion();
+        }
+        if (tag.equalsIgnoreCase("when")) {
+            processWhenQuestion();
+        }
+        if (tag.equalsIgnoreCase("why")) {
+            processWhyQuestion();
+        }
+    }
+
+    private void processWhyQuestion() {
+        if (elementsOfTree.containsKey("NN")) {
+            for (String e : elementsOfTree.keySet()) {
+                if (e.contains("NN")) {
+                    String tagQuestion = elementsOfTree.get(e).toLowerCase();
+                    switch (tagQuestion) {
+                        case "famous":
+                            focusWords.add("list");
+                            setTagQuestion("knownfortitles");
+                            findNameQ();
+                            return;
+                        default:
+                            setTagQuestion("no tag");
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void processWhenQuestion() {
+        boolean manyNames = false;
+        if (elementsOfTree.containsKey(".")) {
+            for (String e : elementsOfTree.keySet()) {
+                if (e.contains(".")) {
+                    String tagQuestion = elementsOfTree.get(e).toLowerCase();
+                    switch (tagQuestion) {
+                        case "die":
+                            focusWords.add("number");
+                            setTagQuestion("deathyear");
+                            findNameQ();
+                            return;
+                        case "born":
+                            focusWords.add("number");
+                            setTagQuestion("birthyear");
+                            findNameQ();
+                            return;
+                        case "aired":
+                            focusWords.add("number");
+                            setTagQuestion("startyear");
+                            findFilmQ();
+                            return;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void processHowQuestion() {
+
     }
 
 
@@ -202,39 +265,37 @@ why's
     private void processWhoQuestion() {
         boolean manyNames = false;
         if (elementsOfTree.containsKey("NN")) {
-            String tagQuestion = elementsOfTree.get("NN").toLowerCase();
-            switch (tagQuestion) {
-                case "director":
-                    focusWords.add("person");
-                    setTagQuestion("directors");
-                    break;
-                case "writer":
-                    focusWords.add("person");
-                    setTagQuestion("writers");
-                    break;
-                case "played":
-                    focusWords.add("person");
-                    setTagQuestion("primaryname");
-                    manyNames = true;
-                    break;
-            }
-            if (manyNames) {
-                findNameQ();
-                for (Map.Entry e : elementsOfTree.entrySet()) {
-                    if (supportWords.get("person").contains(e.getValue().toString())){
-                        elementsOfTree.remove(e.getKey());
+            for (String e : elementsOfTree.keySet()) {
+                if (e.contains("NN")) {
+                    String tagQuestion = elementsOfTree.get(e).toLowerCase();
+                    switch (tagQuestion) {
+                        case "director":
+                            setTagQuestion("directors");
+                            break;
+                        case "writer":
+                            setTagQuestion("writers");
+                            break;
+                        case "played":
+                            setTagQuestion("primaryname");
+                            manyNames = true;
+                            break;
                     }
+                    if (manyNames) {
+                        findNameQ();
+                        for (Map.Entry k : elementsOfTree.entrySet()) {
+                            if (supportWords.get("person").contains(k.getValue().toString())) {
+                                elementsOfTree.remove(k.getKey());
+                            }
+                        }
+                        findFilmQ();
+                    } else
+                        findNameQ();
                 }
-                findFilmQ();
-            } else
-                findNameQ();
+            }
         } else {
-            focusWords.add("person");
             setTagQuestion("primaryprofession");
             findNameQ();
         }
-
-
     }
 
     /*
@@ -307,9 +368,10 @@ why's
         return supportWords;
     }
 
-    public void analysis(){
+    public void analysis() {
         getElementsTree();
         applyRulesForTreeElement();
+        System.out.println("-");
     }
 
 }
