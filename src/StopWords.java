@@ -39,6 +39,10 @@ public class StopWords {
         return words;
     }
 
+    private String removeStopPunctuation(String word) {
+        return word = word.replaceAll("[^a-zA-Z]", "");
+    }
+
     private String[] removeStopWords(String[] words) {
         ArrayList<String> wordsList = new ArrayList<>();
         for (String word : words) {
@@ -50,7 +54,11 @@ public class StopWords {
 
     public String[] clear(String[] words) {
         words = removeStopPunctuation(words);
-        words = removeStopWords(words);
+        // words = removeStopWords(words);
         return words;
+    }
+
+    public String clear(String word) {
+        return removeStopPunctuation(word);
     }
 }

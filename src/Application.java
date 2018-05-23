@@ -47,16 +47,6 @@ public class Application {
         }
     }
 
-//    private static void createTreeAndFindMeanSentence(String text) {
-    //не работает из аннотатора tokenize и др
-//        Properties properties = new Properties();
-//        properties.setProperty("annotators", "tokenize,ssplit,parse");
-//        StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);
-//        Annotation annotator = new Annotation(text);
-//        pipeline.annotate(annotator);
-//        pipeline.prettyPrint(annotator, System.out);
-//    }
-
     private static void findPartOfSpeech(String text) {
         // разбиение на части речи
         POSModel model = new POSModelLoader().load(new File("C:\\OpenNLP Models", "en-pos-maxent.bin"));
@@ -82,34 +72,4 @@ public class Application {
             e.printStackTrace();
         }
     }
-
-    private static void findPathOfSentences(String text) {
-        // поиск фрагментов текста
-        String tokens[] = text.split("\\s+");
-        for (String token :
-                tokens) {
-            System.out.println(token);
-        }
-    }
-
-//    private static void findSentences(String text) {
-//         поиск предложений
-//        StringReader reader = new StringReader(text);
-//        DocumentPreprocessor dp = new DocumentPreprocessor(reader);
-//        List<String> sentences = new LinkedList<String>();
-//        for (List<HasWord> element :
-//                dp) {
-//            StringBuilder sentence = new StringBuilder();
-//            List<HasWord> hasWordList = element;
-//            for (HasWord token :
-//                    hasWordList) {
-//                sentence.append(token).append(" ");
-//            }
-//            sentences.add(sentence.toString());
-//        }
-//        for (String sent :
-//                sentences) {
-//            System.out.println(sent);
-//        }
-//    }
 }

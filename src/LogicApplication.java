@@ -26,9 +26,8 @@ public class LogicApplication {
 
     public void start(String questrion) throws SQLException {
         anl_q = new AnalysisQuestion(questrion);
-        anl_q.findNameQ();
-        anl_q.getElementsTree();
-        anl_q.setTagQuestion();
+        anl_q.analysis();
+
 //        ArrayList<String> res = getAnswerFromDB(getQuery(), anl_q.getTagQuestion());
 //        anl_a = new AnalysisAnswer(anl_q.getTagQuestion());
 //        anl_a.formatAnswer();

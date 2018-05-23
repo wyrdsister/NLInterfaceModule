@@ -11,6 +11,7 @@ import opennlp.tools.util.Span;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,9 +26,29 @@ public class AnalysisQuestion {
     private String TagQuestion;
     private Map<String, String> supportWords;
 
-    String pathDirectory = "C:\\Users\\Моя госпожа\\Documents\\GitHub\\NLInterfaceModule\\materials";
+    private String pathDirectory = "C:\\Users\\catamorphism\\Documents\\GitHub\\NLInterfaceModule\\materials";
 
     private Map<String, String> elementsOfTree;
+
+    private StopWords stopWords;
+    private Parser parser;
+    private NameFinderME nameFinder;
+
+/*
+* what
+what's
+when
+when's
+where
+where's
+which
+while
+who
+who's
+whom
+why
+why's
+* */
 
 
     AnalysisQuestion(String _question) {
@@ -36,46 +57,26 @@ public class AnalysisQuestion {
         TagQuestion = null;
         supportWords = new HashMap<>();
         elementsOfTree = new HashMap<>();
+
+        stopWords = createStopWordsParser();
+        parser = createParserModel();
+        nameFinder = createNameParser();
     }
 
-    public String getQ() {
-        return question;
-    }
-
-    public String[] getF() {
-        return focusWords.toArray(new String[0]);
-    }
-
-    private String[] tokenizeQ() {
-        return WhitespaceTokenizer.INSTANCE.tokenize(question);
-    }
-
-    public String[] clearStopWordsQ() {
-        File StopWords = new File(pathDirectory, "stopwords.txt");
-        StopWords sw = new StopWords(StopWords.getAbsolutePath());
-        String[] tokens = tokenizeQ();
-        return sw.clear(tokens);
-
-    }
-
-    public void findNameQ() {
-        /*разбиваем вопрос на токены и очищаем от "шумных слов"*/
-        String[] tokens = clearStopWordsQ();
-        /*создаем модель для поиска имен*/
+    private NameFinderME createNameParser() {
+        File modelName = new File(pathDirectory, "en-ner-person.bin");
+        TokenNameFinderModel model = null;
         try {
-            File modelName = new File(pathDirectory, "en-ner-person.bin");
-            TokenNameFinderModel model = new TokenNameFinderModel(modelName);
-            NameFinderME nameFinder = new NameFinderME(model);
-            /*проводим сам поиск*/
-            Span[] names = nameFinder.find(tokens);
-            /*записываем имя в supportWords*/
-            for (Span name : names) {
-                supportWords.put("name", tokens[name.getStart()] + " " + tokens[name.getStart() + 1]);
-            }
+            model = new TokenNameFinderModel(modelName);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return new NameFinderME(model);
+    }
 
+    private StopWords createStopWordsParser() {
+        File StopWords = new File(pathDirectory, "stopwords.txt");
+        return new StopWords(StopWords.getAbsolutePath());
     }
 
     /*
@@ -90,6 +91,44 @@ public class AnalysisQuestion {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String getQ() {
+        return question;
+    }
+
+    private String[] tokenizeQ() {
+        return WhitespaceTokenizer.INSTANCE.tokenize(question);
+    }
+
+    private String[] clearStopWordsQ() {
+        String[] tokens = tokenizeQ();
+        return stopWords.clear(tokens);
+    }
+
+    private String clearWord(String str) {
+        return stopWords.clear(str);
+    }
+
+    private void findNameQ() {
+        /*разбиваем вопрос на токены и очищаем от "шумных слов"*/
+        String[] tokens = clearStopWordsQ();
+        /*проводим сам поиск*/
+        Span[] names = nameFinder.find(tokens);
+        /*записываем имя в supportWords*/
+        for (Span name : names) {
+            supportWords.put("person", tokens[name.getStart()] + " " + tokens[name.getStart() + 1]);
+        }
+    }
+
+    private void findFilmQ() {
+        for (String e : elementsOfTree.keySet()) {
+            String nameFilm = "";
+            if (e.contains("NNP") || e.contains("NNPS")) {
+                nameFilm += (elementsOfTree.get(e) + " ");
+            }
+            supportWords.put("film", nameFilm.trim());
+        }
     }
 
     /*
@@ -108,8 +147,8 @@ public class AnalysisQuestion {
     /*
      * запись элементов дерева с тэгом и значением в Map-у
      * */
-    public void getElementsTree() {
-        Parser parser = createParserModel();
+    private void getElementsTree() {
+        question = Arrays.toString(clearStopWordsQ());
         if (parser != null) {
             Parse tree[] = ParserTool.parseLine(question, parser, 1);
             for (Parse parse : tree) {
@@ -117,62 +156,143 @@ public class AnalysisQuestion {
                 for (Parse e : element) {
                     Parse tags[] = e.getTagNodes();
                     for (Parse tag : tags) {
-//                    System.out.println(tag + " " + tag.getType() + " " + tag.getText());
-                        elementsOfTree.put(tag.getType(), tag.toString());
+                        if (elementsOfTree.containsKey(tag.getType()))
+                            elementsOfTree.put(tag.getType() + " " + elementsOfTree.size(), tag.toString());
+                        else
+                            elementsOfTree.put(tag.getType(), tag.toString());
                     }
                 }
             }
         }
-//        System.out.print(elementsOfTree);
+        /*
+         * очистим слова от лишних знаков пунттуации
+         */
+        for (Map.Entry e : elementsOfTree.entrySet()) {
+            elementsOfTree.put(e.getKey().toString(), clearWord(e.getValue().toString()));
+        }
     }
 
     /*
-     * применение правил для элементов дерева
+     * определение правила обработки для элементов дерева
      * */
     private void applyRulesForTreeElement() {
-        getElementsTree();
         for (Map.Entry<String, String> e : elementsOfTree.entrySet()) {
-            RulesForFocus(e.getValue(), e.getKey());
-            RulesForSupport(e.getValue(), e.getKey());
+            Rules(e.getKey(), e.getValue());
         }
     }
 
-    private void RulesForSupport(String tag, String type) {
-        if (type.equals("VR"))
-            supportWords.put("condition-" + supportWords.size() + 1, tag);
+    private void setTagQuestion(String tag) {
+        TagQuestion = tag;
+    }
 
+    private void Rules(String type, String tag) {
+        if (tag.equalsIgnoreCase("what")) {
+            processWhatQuestion();
+        }
+        if (tag.equalsIgnoreCase("who")) {
+            focusWords.add("person");
+            processWhoQuestion();
+        }
     }
 
 
-    public void setTagQuestion() {
-        for (String element : focusWords) {
-            //TODO реагирует на регистр
-            if (element.toLowerCase().equalsIgnoreCase("when")) {
-//                for (String word : supportWords) {
-//                    if (word.equalsIgnoreCase("born"))
-//                        TagQuestion = "birthyear";
-//                    if (word.equalsIgnoreCase("dead"))
-//                        TagQuestion = "deathyear";
+    /*
+     * Обработка вопроса Кто
+     */
+    private void processWhoQuestion() {
+        boolean manyNames = false;
+        if (elementsOfTree.containsKey("NN")) {
+            String tagQuestion = elementsOfTree.get("NN").toLowerCase();
+            switch (tagQuestion) {
+                case "director":
+                    focusWords.add("person");
+                    setTagQuestion("directors");
+                    break;
+                case "writer":
+                    focusWords.add("person");
+                    setTagQuestion("writers");
+                    break;
+                case "played":
+                    focusWords.add("person");
+                    setTagQuestion("primaryname");
+                    manyNames = true;
+                    break;
             }
+            if (manyNames) {
+                findNameQ();
+                for (Map.Entry e : elementsOfTree.entrySet()) {
+                    if (supportWords.get("person").contains(e.getValue().toString())){
+                        elementsOfTree.remove(e.getKey());
+                    }
+                }
+                findFilmQ();
+            } else
+                findNameQ();
+        } else {
+            focusWords.add("person");
+            setTagQuestion("primaryprofession");
+            findNameQ();
         }
-//            if (element.equalsIgnoreCase("how")) {
-//                for (String word : supportWords) {
-//                    if (word.equalsIgnoreCase("old"))
-//                        TagQuestion = "age";
-//                }
-//            }
-//        }
+
+
     }
 
-
-    private void RulesForFocus(String tag, String type) {
-        if (type.equals("WDT"))
-            focusWords.add(tag);
-        if (type.equals("WRB"))
-            focusWords.add(tag);
-        if (type.equals("NN"))
-            focusWords.add(tag);
-
+    /*
+     * Обработка вопроса Что | Какой
+     */
+    private void processWhatQuestion() {
+        boolean namePerson = false;
+        if (elementsOfTree.containsKey(".")) {
+            String tagQuestion = elementsOfTree.get(".").toLowerCase();
+            switch (tagQuestion) {
+                case "rating":
+                    focusWords.add("number");
+                    setTagQuestion("averagerating");
+                    break;
+                case "genres":
+                    focusWords.add("list");
+                    setTagQuestion("genres");
+                    break;
+                case "cast":
+                    focusWords.add("list");
+                    setTagQuestion("cast");
+                    break;
+                case "star":
+                    focusWords.add("list");
+                    namePerson = true;
+                    setTagQuestion("knownfortitles");
+                default:
+                    focusWords.add("film");
+                    supportWords.put("language", elementsOfTree.get("."));
+                    setTagQuestion("language");
+                    break;
+            }
+            if (namePerson)
+                findNameQ();
+            else
+                findFilmQ();
+        } else if (elementsOfTree.containsKey("JJ")) {
+            String tagQuestion = elementsOfTree.get("JJ").toLowerCase();
+            for (String e : elementsOfTree.keySet()) {
+                if (e.contains("NN")) {
+                    switch (elementsOfTree.get(e).toLowerCase()) {
+                        case "rating":
+                            supportWords.put("power", elementsOfTree.get("JJ"));
+                            setTagQuestion("averagerating");
+                            break;
+                        case "votes":
+                            supportWords.put("power", elementsOfTree.get("JJ"));
+                            setTagQuestion("numvotes");
+                            break;
+                        default:
+                            setTagQuestion("no tag");
+                            break;
+                    }
+                }
+            }
+            focusWords.add("film");
+            findFilmQ();
+        }
     }
 
     public String getTagQuestion() {
@@ -187,5 +307,9 @@ public class AnalysisQuestion {
         return supportWords;
     }
 
+    public void analysis(){
+        getElementsTree();
+        applyRulesForTreeElement();
+    }
 
 }
